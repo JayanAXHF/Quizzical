@@ -1,4 +1,4 @@
-import { Button, Divider } from "@mui/material";
+import { Button, Divider, Typography } from "@mui/material";
 import React, { useEffect, useState } from "react";
 import { decode } from "html-entities";
 import { red } from "@mui/material/colors";
@@ -43,7 +43,7 @@ const QuizPage = () => {
   const [completed, setCompleted] = useState<boolean>(false);
 
   const [questions, setQuestions] = useState<Question[]>([]);
-  const [results, setResults] = useState<boolean[]>();
+  const [results, setResults] = useState<number>();
 
   useEffect(() => {
     fetchData();
@@ -66,21 +66,10 @@ const QuizPage = () => {
   };
 
   const changeAns = (index: number, answer: string) => {
-    // let prevAns: string[] = prevState;
-    // prevAns[index] = answer;
-    // console.log(
-    //   `JSC ~ file: QuizPage.tsx:67 ~ setSelectedAnswers ~ prevAns`,
-    //   prevAns
-    // );
     setSelectedAnswers({ ...selectedAnswers, [index]: answer });
   };
 
   const questionComponent = questions.map((question, i) => {
-    const randomInteger = Math.floor(Math.random() * 3);
-
-    // let answers = shuffle(
-    //   question.incorrect_answers.concat([question.correct_answer])
-    // );
     const { answers } = question;
     const index: number = i;
 
@@ -113,14 +102,14 @@ const QuizPage = () => {
 
   const handleSubmit = (e: React.SyntheticEvent) => {
     e.preventDefault();
-    const results = questions.map((question, i) => {
-      if (question.correct_answer === selectedAnswers[i]) {
-        return true;
-      } else {
-        return false;
+    let results: number = 0;
+    for (let index = 0; index < 5; index++) {
+      const element = selectedAnswers[index];
+      if (element === questions[index].correct_answer) {
+        results += 1;
       }
-    });
-    console.log(`JSC ~ file: QuizPage.tsx:97 ~ results ~ results`, results);
+    }
+
     setCompleted((prevState: boolean) => {
       return !prevState;
     });
@@ -214,7 +203,10 @@ const QuizPage = () => {
         </form>
       ) : (
         <div className="w-screen h-screen grid place-content-center gap-y-4">
-          {" "}
+          <Typography variant="h1">
+            Score: {results}
+            /5
+          </Typography>
           {checkComponent}
           <br />
           <Button

@@ -25,7 +25,9 @@ const Home = () => {
     <div className="grid h-screen w-screen grid-flow-row  place-content-center place-items-center  ">
       <h1 className="mx-auto text-center text-5xl">Quizzical</h1>
       <br />
-      <Typography variant="h3">Top Score: {Math.max(...scores)}/5</Typography>
+      {localStorage.getItem("scores") && (
+        <Typography variant="h3">Top Score: {Math.max(...scores)}/5</Typography>
+      )}
       <br />
       <Button variant="contained" color="success" onClick={handleClick}>
         Start

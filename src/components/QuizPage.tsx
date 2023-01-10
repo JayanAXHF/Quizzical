@@ -226,9 +226,11 @@ const QuizPage: React.FC = () => {
           <CircularProgress />
         ) : (
           <form className="grid h-screen w-screen place-content-center gap-y-4">
-            <Typography variant="h1">
-              Top Score: {Math.max(...scores)}/5
-            </Typography>
+            {localStorage.getItem("scores") && (
+              <Typography variant="h1">
+                Top Score: {Math.max(...scores)}/5
+              </Typography>
+            )}
             {questionComponent}
             <Button
               type="submit"

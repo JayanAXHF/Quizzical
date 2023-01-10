@@ -1,8 +1,9 @@
-import { Button, Divider, Typography } from "@mui/material";
+import { Button, CircularProgress, Divider, Typography } from "@mui/material";
 import React, { useEffect, useState } from "react";
 import { decode } from "html-entities";
 import { red } from "@mui/material/colors";
-
+import ArrowBackIcon from "@mui/icons-material/ArrowBack";
+import { useNavigate } from "react-router-dom";
 interface Question {
   category: string;
   type: string;
@@ -29,7 +30,9 @@ function shuffle(array: any[]) {
   return array;
 }
 
-const QuizPage = () => {
+const QuizPage: React.FC = () => {
+  const navigate = useNavigate();
+
   const url: string = "https://opentdb.com/api.php?amount=5&type=multiple";
 
   const [selectedAnswers, setSelectedAnswers] = useState<SelAns>({
@@ -40,18 +43,27 @@ const QuizPage = () => {
     4: "",
   });
 
+  const [scores, setScores] = useState<number[]>([]);
+  const [loading, setLoading] = useState<boolean>(false);
   const [completed, setCompleted] = useState<boolean>(false);
 
   const [questions, setQuestions] = useState<Question[]>([]);
   const [results, setResults] = useState<number>();
 
   useEffect(() => {
+    setLoading(true);
     fetchData();
-  }, []);
+    if (localStorage.getItem("scores")) {
+      let tempArr = JSON.parse(localStorage.getItem("scores") as string);
 
-  useEffect(() => {
-    console.log(selectedAnswers);
-  }, [selectedAnswers]);
+      let tempScores: number[] = tempArr.map((item: number) => {
+        return Number(item);
+      });
+
+      setScores(tempScores);
+      setLoading(false);
+    }
+  }, []);
 
   const fetchData = async () => {
     const res = await fetch(url);
@@ -85,6 +97,7 @@ const QuizPage = () => {
               selectedAnswers[index] === answer ? "contained" : "outlined";
             return (
               <Button
+                size="small"
                 variant={variant}
                 onClick={() => {
                   changeAns(index, answer);
@@ -95,7 +108,10 @@ const QuizPage = () => {
             );
           })}
         </div>
+        <br />
+
         <Divider />
+        <br />
       </div>
     );
   });
@@ -110,6 +126,8 @@ const QuizPage = () => {
       }
     }
 
+    setScores([...scores, results]);
+    localStorage.setItem("scores", JSON.stringify([...scores, results]));
     setCompleted((prevState: boolean) => {
       return !prevState;
     });
@@ -176,6 +194,7 @@ const QuizPage = () => {
                         : "grayscale(0%)",
                   },
                 }}
+                size="small"
               >
                 {decode(answer)}
               </Button>
@@ -189,23 +208,46 @@ const QuizPage = () => {
 
   return (
     <>
+      <Button
+        sx={{
+          position: "fixed",
+          top: 2 * 5,
+          left: 2 * 5,
+        }}
+        variant="outlined"
+        onClick={() => {
+          navigate("/");
+        }}
+      >
+        <ArrowBackIcon />
+      </Button>
       {!completed ? (
-        <form className="w-screen h-screen grid place-content-center gap-y-4">
-          {questionComponent}
-          <Button
-            type="submit"
-            sx={{ width: "max-content" }}
-            variant="contained"
-            onClick={handleSubmit}
-          >
-            Check Answers
-          </Button>
-        </form>
+        loading ? (
+          <CircularProgress />
+        ) : (
+          <form className="grid h-screen w-screen place-content-center gap-y-4">
+            <Typography variant="h1">
+              Top Score: {Math.max(...scores)}/5
+            </Typography>
+            {questionComponent}
+            <Button
+              type="submit"
+              sx={{ width: "max-content" }}
+              variant="contained"
+              onClick={handleSubmit}
+            >
+              Check Answers
+            </Button>
+          </form>
+        )
       ) : (
-        <div className="w-screen h-screen grid place-content-center gap-y-4">
+        <div className="grid h-screen w-screen place-content-center gap-y-4">
           <Typography variant="h1">
             Score: {results}
             /5
+          </Typography>
+          <Typography variant="h1">
+            Top Score: {Math.max(...scores)}/5
           </Typography>
           {checkComponent}
           <br />
@@ -213,6 +255,12 @@ const QuizPage = () => {
             variant="contained"
             sx={{
               width: "max-content",
+            }}
+            onClick={() => {
+              setLoading(true);
+              setCompleted(false);
+              fetchData();
+              setLoading(false);
             }}
           >
             Play Again

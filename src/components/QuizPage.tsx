@@ -4,6 +4,9 @@ import { decode } from "html-entities";
 import { red } from "@mui/material/colors";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import { useNavigate } from "react-router-dom";
+import { auth } from "../firebase";
+import { updateProfile, User } from "firebase/auth";
+
 interface Question {
   category: string;
   type: string;

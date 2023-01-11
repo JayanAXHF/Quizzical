@@ -880,7 +880,7 @@ export const dark: Object = {
       main: "#5090D3",
     },
     background: {
-      default: "#001E3C",
+      default: "#153243",
       paper: "#0A1929",
     },
     common: {

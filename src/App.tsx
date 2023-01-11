@@ -7,6 +7,9 @@ import Home from "./components/Home";
 import "./App.css";
 import { BrowserRouter, Route, Routes } from "react-router-dom";
 import QuizPage from "./components/QuizPage";
+import Signup from "./components/Signup";
+import Login from "./components/Login";
+import { AppProvider } from "./context/context";
 
 function App() {
   const prefersDarkMode = useMediaQuery<boolean>(
@@ -18,15 +21,19 @@ function App() {
     [prefersDarkMode]
   );
   return (
-    <ThemeProvider theme={theme}>
-      <CssBaseline />
-      <BrowserRouter>
-        <Routes>
-          <Route path="/" element={<Home />} />
-          <Route path="/quiz" element={<QuizPage />} />
-        </Routes>
-      </BrowserRouter>
-    </ThemeProvider>
+    <AppProvider>
+      <ThemeProvider theme={theme}>
+        <CssBaseline />
+        <BrowserRouter>
+          <Routes>
+            <Route path="/" element={<Home />} />
+            <Route path="/quiz" element={<QuizPage />} />
+            <Route path="/signup" element={<Signup />} />
+            <Route path="/login" element={<Login />} />
+          </Routes>
+        </BrowserRouter>
+      </ThemeProvider>
+    </AppProvider>
   );
 }
 

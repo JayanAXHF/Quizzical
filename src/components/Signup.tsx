@@ -1,10 +1,19 @@
+import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import { useRef, useState } from "react";
 import {
+  browserSessionPersistence,
   createUserWithEmailAndPassword,
-  onAuthStateChanged,
-  User,
+  setPersistence,
+  browserLocalPersistence,
 } from "firebase/auth";
-import { Button, Link, TextField, Typography } from "@mui/material";
+import {
+  Button,
+  Checkbox,
+  FormControlLabel,
+  Link,
+  TextField,
+  Typography,
+} from "@mui/material";
 import { auth } from "../firebase";
 import { Link as RouterLink, useNavigate } from "react-router-dom";
 import { ref, set } from "firebase/database";
@@ -15,86 +24,129 @@ const Signup = () => {
   const [email, setEmail] = useState<string>("");
   const [password, setPassword] = useState<string>("");
   const [confirmPass, setConfirmPass] = useState<string>("");
+  const [showPass, setShowPass] = useState<boolean>(false);
+  const [keepLogin, setKeepLogin] = useState<boolean>(false);
 
   const emailRef = useRef<string>(null);
-  const [user, setUser] = useState<User>();
 
-  onAuthStateChanged(auth, (user) => {
-    if (user) {
-      // User is signed in, see docs for a list of available properties
-      // https://firebase.google.com/docs/reference/js/firebase.User
-      const uid = user.uid;
-      setUser(user);
-      // ...
-    } else {
-      // User is signed out
-      // ...
-    }
-  });
+  const { setGlobalUser, setUserData, setLogin } = useAppContext();
+
   const navigate = useNavigate();
   const handleSubmit = async () => {
     if (password === confirmPass) {
-      createUserWithEmailAndPassword(
-        auth,
-        emailRef.current as string,
-        password
-      ).then((userCredential) => {
-        // Signed in
-
-        console.log(
-          `JSC ~ file: Signup.tsx:23 ~ .then ~ user`,
-          userCredential.user
+      try {
+        keepLogin && setPersistence(auth, browserLocalPersistence);
+        const userCredentials = await createUserWithEmailAndPassword(
+          auth,
+          email,
+          password
         );
-      });
-      await set(ref(db, "users/"), {
-        email: emailRef.current?.toString(),
-        scores: [],
-
-        // ...
-      }).catch((error) => {
+        const user = userCredentials.user;
+        setGlobalUser(user);
+        const uid = user.uid;
+        await set(ref(db, `users/${uid}`), { email, scores: [0] });
+        setUserData({ email, scores: [0], uid });
+        setLogin(true);
+        keepLogin &&
+          localStorage.setItem(
+            "user",
+            JSON.stringify({ email, scores: [0], uid })
+          );
+        if (!keepLogin) {
+          localStorage.removeItem(
+            "firebase:authUser:AIzaSyD5Wx1tmwXiUsBDGZ31tB0Hm5E5xABAY1c:[DEFAULT]"
+          );
+        }
+        navigate("/");
+      } catch (error) {
         throw error;
-        // ..
-      });
-      navigate("/");
+      }
     } else {
       throw new Error("The passwords do not match!");
     }
   };
 
   return (
-    <form className="grid h-screen w-screen place-content-center gap-y-5">
-      <TextField
-        label="Email"
-        onChange={(event) => {
-          setEmail(event.target.value);
+    <div>
+      {" "}
+      <Button
+        sx={{
+          position: "absolute",
+          top: 2 * 5,
+          left: 2 * 5,
         }}
-        required
-        inputRef={emailRef}
-      />
-      <TextField
-        label="Password"
-        onChange={(event) => {
-          setPassword(event.target.value);
+        variant="outlined"
+        onClick={() => {
+          navigate("/");
         }}
-        required
-      />
-      <TextField
-        label="Retype Password"
-        onChange={(event) => {
-          setConfirmPass(event.target.value);
-        }}
-        required
-      />
-      <Typography variant="body2">
-        Already have an account?{" "}
-        <Link to="/login" component={RouterLink}>
-          Sign In instead
-        </Link>
-      </Typography>
-      <Button onClick={handleSubmit} variant="contained">
-        Sign Up
+      >
+        <ArrowBackIcon />
       </Button>
-    </form>
+      <form className="grid h-screen w-screen place-content-center gap-y-5 ">
+        <div className="grid place-content-center gap-y-5 rounded-lg bg-white p-6 shadow-md dark:bg-main">
+          <Typography variant="h1">Welcome Here!</Typography>
+          <TextField
+            label="Email"
+            onChange={(event) => {
+              setEmail(event.target.value);
+            }}
+            required
+            inputRef={emailRef}
+          />
+          <TextField
+            label="Password"
+            type={showPass ? "text" : "password"}
+            onChange={(event) => {
+              setPassword(event.target.value);
+            }}
+            required
+          />
+          <TextField
+            label="Retype Password"
+            type={showPass ? "text" : "password"}
+            onChange={(event) => {
+              setConfirmPass(event.target.value);
+            }}
+            required
+          />
+          <FormControlLabel
+            control={
+              <Checkbox
+                checked={showPass}
+                onChange={() => {
+                  setShowPass((prevState: boolean) => {
+                    return !prevState;
+                  });
+                }}
+              />
+            }
+            label="Show Password"
+          />
+          <FormControlLabel
+            control={
+              <Checkbox
+                checked={keepLogin}
+                onChange={() => {
+                  setKeepLogin((prevState: boolean) => {
+                    return !prevState;
+                  });
+                }}
+              />
+            }
+            label="Keep me logged in"
+          />
+          <Typography variant="body2">
+            Already have an account?{" "}
+            <Link to="/login" component={RouterLink}>
+              Sign In instead
+            </Link>
+          </Typography>
+          <Button onClick={handleSubmit} variant="contained">
+            Sign Up
+          </Button>
+        </div>
+      </form>
+    </div>
   );
 };
 

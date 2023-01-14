@@ -4,8 +4,10 @@ import { decode } from "html-entities";
 import { red } from "@mui/material/colors";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import { useNavigate } from "react-router-dom";
-import { auth } from "../firebase";
-import { updateProfile, User } from "firebase/auth";
+import { auth, db } from "../firebase";
+import { useAppContext } from "../context/context";
+import { child, get, ref, set } from "firebase/database";
+import { setPersistence, browserLocalPersistence } from "firebase/auth";
 
 interface Question {
   category: string;
@@ -32,8 +34,11 @@ function shuffle(array: any[]) {
   }
   return array;
 }
+const dbRef = ref(db);
 
 const QuizPage: React.FC = () => {
+  const { userData, setGlobalUser, setUserData, setLogin, login } =
+    useAppContext();
   const navigate = useNavigate();
 
   const url: string = "https://opentdb.com/api.php?amount=5&type=multiple";
@@ -46,7 +51,7 @@ const QuizPage: React.FC = () => {
     4: "",
   });
 
-  const [scores, setScores] = useState<number[]>([]);
+  const [scores, setScores] = useState<number[]>([0]);
   const [loading, setLoading] = useState<boolean>(false);
   const [completed, setCompleted] = useState<boolean>(false);
 
@@ -55,20 +60,39 @@ const QuizPage: React.FC = () => {
 
   useEffect(() => {
     setLoading(true);
-    fetchData();
-    if (localStorage.getItem("scores")) {
-      let tempArr = JSON.parse(localStorage.getItem("scores") as string);
+    userData && setScores(userData.scores);
 
-      let tempScores: number[] = tempArr.map((item: number) => {
-        return Number(item);
-      });
+    const usr = JSON.parse(localStorage.getItem(`user`) as string);
 
-      setScores(tempScores);
-      setLoading(false);
+    console.log(`JSC ~ file: QuizPage.tsx:65 ~ useEffect ~ usr`, usr);
+    if (usr) {
+      setPersistence(auth, browserLocalPersistence);
+      setGlobalUser(usr);
+      fetchUserData(usr.uid);
+      localStorage.setItem(
+        `firebase:authUser:AIzaSyD5Wx1tmwXiUsBDGZ31tB0Hm5E5xABAY1c:[DEFAULT]`,
+        JSON.stringify(usr)
+      );
     }
+    fetchData();
+    setLoading(false);
   }, []);
 
+  const fetchUserData = async (uid: string) => {
+    const snapshot = await get(child(dbRef, `users/${uid}`));
+    if (snapshot.exists()) {
+      console.log(
+        `JSC ~ file: QuizPage.tsx:80 ~ fetchUserData ~ snapshot`,
+        snapshot.val()
+      );
+      setUserData({ ...snapshot.val(), uid });
+      setLogin(true);
+    } else {
+    }
+  };
+
   const fetchData = async () => {
+    setLoading(true);
     const res = await fetch(url);
     const data = await res.json();
     let formattedData = data.results.map((item: Question) => {
@@ -78,6 +102,7 @@ const QuizPage: React.FC = () => {
       };
     });
     setQuestions(formattedData);
+    setLoading(false);
   };
 
   const changeAns = (index: number, answer: string) => {
@@ -94,16 +119,22 @@ const QuizPage: React.FC = () => {
           Q{i + 1}. {decode(question?.question)}
         </span>
 
-        <div className="grid grid-flow-col gap-x-6">
+        <div className="grid grid-flow-row gap-x-6 gap-y-3 md:grid-flow-col">
           {answers.map((answer) => {
             const variant =
               selectedAnswers[index] === answer ? "contained" : "outlined";
             return (
               <Button
-                size="small"
                 variant={variant}
                 onClick={() => {
                   changeAns(index, answer);
+                }}
+                sx={{
+                  scale: {
+                    xs: "95%",
+
+                    md: "100%",
+                  },
                 }}
               >
                 {decode(answer)}
@@ -111,7 +142,6 @@ const QuizPage: React.FC = () => {
             );
           })}
         </div>
-        <br />
 
         <Divider />
         <br />
@@ -119,7 +149,7 @@ const QuizPage: React.FC = () => {
     );
   });
 
-  const handleSubmit = (e: React.SyntheticEvent) => {
+  const handleSubmit = async (e: React.SyntheticEvent) => {
     e.preventDefault();
     let results: number = 0;
     for (let index = 0; index < 5; index++) {
@@ -129,11 +159,27 @@ const QuizPage: React.FC = () => {
       }
     }
 
-    setScores([...scores, results]);
-    localStorage.setItem("scores", JSON.stringify([...scores, results]));
+    setScores([...(scores as number[]), results]);
+    localStorage.setItem(
+      "scores",
+      JSON.stringify([...(scores as number[]), results])
+    );
     setCompleted((prevState: boolean) => {
       return !prevState;
     });
+
+    setUserData({
+      ...userData,
+      scores: [...userData.scores, results],
+    });
+
+    try {
+      await set(ref(db, `users/${userData.uid}/scores`), [
+        ...userData.scores,
+        results,
+      ]);
+    } catch (error) {}
+
     setResults(results);
   };
 
@@ -143,12 +189,12 @@ const QuizPage: React.FC = () => {
     const index: number = i;
 
     return (
-      <div key={i} className="grid gap-y-1">
+      <div key={i} className="mt-16 grid gap-y-1 md:mt-0">
         <span>
           Q{i + 1}. {decode(question?.question)}
         </span>
 
-        <div className="grid grid-flow-col gap-x-6">
+        <div className="grid grid-flow-row gap-x-6 md:grid-flow-col">
           {answers.map((answer) => {
             const variant =
               selectedAnswers[index] === answer ||
@@ -158,33 +204,22 @@ const QuizPage: React.FC = () => {
                 : "outlined";
 
             return (
-              <Button
-                variant={variant}
-                color={
-                  selectedAnswers[index] === answer &&
-                  question.incorrect_answers.includes(answer)
-                    ? "error"
-                    : selectedAnswers[index] === answer &&
-                      !question.incorrect_answers.includes(answer)
-                    ? "success"
-                    : selectedAnswers[index] !== answer &&
-                      !question.incorrect_answers.includes(answer)
-                    ? "success"
-                    : "primary"
-                }
-                sx={{
-                  bgcolor:
+              <span>
+                <Button
+                  variant={variant}
+                  color={
                     selectedAnswers[index] === answer &&
                     question.incorrect_answers.includes(answer)
-                      ? red[500]
-                      : "",
-                  filter:
-                    selectedAnswers[index] === answer &&
-                    question.incorrect_answers.includes(answer)
-                      ? "grayscale(50%)"
-                      : "grayscale(0%)",
-
-                  "&:hover": {
+                      ? "error"
+                      : selectedAnswers[index] === answer &&
+                        !question.incorrect_answers.includes(answer)
+                      ? "success"
+                      : selectedAnswers[index] !== answer &&
+                        !question.incorrect_answers.includes(answer)
+                      ? "success"
+                      : "primary"
+                  }
+                  sx={{
                     bgcolor:
                       selectedAnswers[index] === answer &&
                       question.incorrect_answers.includes(answer)
@@ -195,12 +230,28 @@ const QuizPage: React.FC = () => {
                       question.incorrect_answers.includes(answer)
                         ? "grayscale(50%)"
                         : "grayscale(0%)",
-                  },
-                }}
-                size="small"
-              >
-                {decode(answer)}
-              </Button>
+                    "&:hover": {
+                      bgcolor:
+                        selectedAnswers[index] === answer &&
+                        question.incorrect_answers.includes(answer)
+                          ? red[500]
+                          : "",
+                      filter:
+                        selectedAnswers[index] === answer &&
+                        question.incorrect_answers.includes(answer)
+                          ? "grayscale(50%)"
+                          : "grayscale(0%)",
+                    },
+                    scale: {
+                      xs: "95%",
+                      md: "100%",
+                    },
+                    width: "100%",
+                  }}
+                >
+                  {decode(answer)}
+                </Button>
+              </span>
             );
           })}
         </div>
@@ -210,10 +261,10 @@ const QuizPage: React.FC = () => {
   });
 
   return (
-    <>
+    <div className="grid grid-flow-row">
       <Button
         sx={{
-          position: "fixed",
+          position: "absolute",
           top: 2 * 5,
           left: 2 * 5,
         }}
@@ -224,55 +275,61 @@ const QuizPage: React.FC = () => {
       >
         <ArrowBackIcon />
       </Button>
+
       {!completed ? (
         loading ? (
           <CircularProgress />
         ) : (
-          <form className="grid h-screen w-screen place-content-center gap-y-4">
-            {localStorage.getItem("scores") && (
-              <Typography variant="h1">
-                Top Score: {Math.max(...scores)}/5
-              </Typography>
-            )}
-            {questionComponent}
-            <Button
-              type="submit"
-              sx={{ width: "max-content" }}
-              variant="contained"
-              onClick={handleSubmit}
-            >
-              Check Answers
-            </Button>
+          <form className="mt-16 grid h-screen w-screen gap-y-4 px-3 md:mt-0 md:place-content-center md:px-0">
+            <span className="grid gap-y-4 rounded-lg bg-white p-6 dark:bg-main md:place-content-center">
+              {login && (
+                <Typography variant="h1">
+                  Top Score: {Math.max(...(userData?.scores || [0]))}/5
+                </Typography>
+              )}
+
+              {questionComponent}
+              <Button
+                type="submit"
+                sx={{ width: "max-content" }}
+                variant="contained"
+                onClick={handleSubmit}
+              >
+                Check Answers
+              </Button>
+            </span>
           </form>
         )
       ) : (
-        <div className="grid h-screen w-screen place-content-center gap-y-4">
-          <Typography variant="h1">
-            Score: {results}
-            /5
-          </Typography>
-          <Typography variant="h1">
-            Top Score: {Math.max(...scores)}/5
-          </Typography>
-          {checkComponent}
-          <br />
-          <Button
-            variant="contained"
-            sx={{
-              width: "max-content",
-            }}
-            onClick={() => {
-              setLoading(true);
-              setCompleted(false);
-              fetchData();
-              setLoading(false);
-            }}
-          >
-            Play Again
-          </Button>
+        <div className="mt-16 grid h-screen w-screen gap-y-4 px-3 md:mt-0 md:place-content-center md:px-0">
+          <span className="grid gap-y-4 rounded-lg bg-white p-6 dark:bg-main md:place-content-center">
+            <Typography variant="h1">
+              Score: {results}
+              /5
+            </Typography>
+            <Typography variant="h1">
+              Top Score: {Math.max(...(scores as number[]))}/5
+            </Typography>
+            {checkComponent}
+            <br />
+            <Button
+              variant="contained"
+              sx={{
+                width: "max-content",
+              }}
+              onClick={() => {
+                setLoading(true);
+                setCompleted(false);
+                fetchData();
+                setLoading(false);
+              }}
+            >
+              Play Again
+            </Button>
+          </span>
         </div>
       )}
-    </>
+    </div>
   );
 };
 

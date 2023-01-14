@@ -1,26 +1,68 @@
-import { createContext, useContext, useState } from "react";
-import { auth } from "../firebase";
+import { createContext, useContext, useEffect, useState } from "react";
+import { auth, db } from "../firebase";
 
-import { onAuthStateChanged, User } from "firebase/auth";
+import {
+  browserLocalPersistence,
+  onAuthStateChanged,
+  setPersistence,
+  User,
+} from "firebase/auth";
+import { get, child, ref } from "firebase/database";
 const AppContext = createContext<any>("");
 
+interface UserData {
+  email: String;
+  scores: number[];
+  uid: string;
+}
+const dbRef = ref(db);
+
 export const AppProvider = ({ children }: any) => {
-  const [user, setUser] = useState<User>();
+  const [globalUser, setGlobalUser] = useState<User>();
+  const [login, setLogin] = useState<boolean>(false);
+  const [userData, setUserData] = useState<UserData>();
 
-  onAuthStateChanged(auth, (user) => {
-    if (user) {
-      // User is signed in, see docs for a list of available properties
-      // https://firebase.google.com/docs/reference/js/firebase.User
-      const uid = user.uid;
-      setUser(user);
-      // ...
+  const fetchUserData = async (uid: string) => {
+    const snapshot = await get(child(dbRef, `users/${uid}`));
+    if (snapshot.exists()) {
+      setUserData({ ...snapshot.val(), uid });
+      setLogin(true);
     } else {
-      // User is signed out
-      // ...
     }
-  });
+  };
 
-  return <AppContext.Provider value={{ user }}>{children}</AppContext.Provider>;
+  useEffect(() => {
+    const usr = JSON.parse(
+      localStorage.getItem(
+        `firebase:authUser:AIzaSyD5Wx1tmwXiUsBDGZ31tB0Hm5E5xABAY1c:[DEFAULT]`
+      ) as string
+    );
+
+    if (usr) {
+      setPersistence(auth, browserLocalPersistence);
+      setGlobalUser(usr);
+      fetchUserData(usr.uid);
+      localStorage.setItem(
+        `firebase:authUser:AIzaSyD5Wx1tmwXiUsBDGZ31tB0Hm5E5xABAY1c:[DEFAULT]`,
+        JSON.stringify(usr)
+      );
+    }
+  }, []);
+
+  return (
+    <AppContext.Provider
+      value={{
+        globalUser,
+        setGlobalUser,
+        login,
+        setLogin,
+        userData,
+        setUserData,
+      }}
+    >
+      {children}
+    </AppContext.Provider>
+  );
 };
 
 export const useAppContext = () => {

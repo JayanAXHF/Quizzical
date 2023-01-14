@@ -1,10 +1,58 @@
-import { Button, Menu, MenuItem, Typography } from "@mui/material";
-import { useNavigate } from "react-router-dom";
-import React, { useState, useEffect, SyntheticEvent } from "react";
-const Home = () => {
-  const [scores, setScores] = useState<number[]>([]);
+import {
+  Box,
+  Button,
+  Dialog,
+  DialogContent,
+  DialogTitle,
+  IconButton,
+  Link,
+  Menu,
+  MenuItem,
+  TextField,
+  Typography,
+} from "@mui/material";
+import { useNavigate, Link as RouterLink } from "react-router-dom";
+import React, { useState } from "react";
+import { useAppContext } from "../context/context";
+import { createUserWithEmailAndPassword } from "firebase/auth";
+import { auth, db } from "../firebase";
+import { ref, set } from "firebase/database";
+import { Close as CloseIcon } from "@mui/icons-material";
 
-  const [anchorEl, setAnchorEl] = React.useState<any>(null);
+function BootstrapDialogTitle(props: any) {
+  const { children, onClose, ...other } = props;
+
+  return (
+    <DialogTitle sx={{ m: 0, p: 2 }} {...other}>
+      {children}
+      {onClose ? (
+        <IconButton
+          aria-label="close"
+          onClick={onClose}
+          sx={{
+            position: "absolute",
+            right: 8,
+            top: 8,
+            color: (theme) => theme.palette.grey[500],
+          }}
+        >
+          <CloseIcon />
+        </IconButton>
+      ) : null}
+    </DialogTitle>
+  );
+}
+
+const Home = () => {
+  const [anchorEl, setAnchorEl] = useState<any>(null);
+  const [show, setShow] = useState<boolean>(false);
+  const [email, setEmail] = useState<string>("");
+  const [password, setPassword] = useState<string>("");
+  const { setGlobalUser, setUserData, setLogin, login, userData } =
+    useAppContext();
+
+  const [confirmPass, setConfirmPass] = useState<string>("");
+
   const open = Boolean(anchorEl);
   const handleClick = (event: any) => {
     setAnchorEl(event.currentTarget);
@@ -12,21 +60,40 @@ const Home = () => {
   const handleClose = () => {
     setAnchorEl(null);
   };
-  useEffect(() => {
-    if (localStorage.getItem("scores")) {
-      let tempArr = JSON.parse(localStorage.getItem("scores") as string);
-
-      let tempScores: number[] = tempArr.map((item: number) => {
-        return Number(item);
-      });
-
-      setScores(tempScores);
-    }
-  }, []);
 
   const navigate = useNavigate();
   const handleStart: React.MouseEventHandler<HTMLButtonElement> = () => {
     navigate("/quiz");
+  };
+
+  const handleSubmit = async () => {
+    if (password === confirmPass) {
+      try {
+        const userCredentials = await createUserWithEmailAndPassword(
+          auth,
+          email,
+          password
+        );
+        const user = userCredentials.user;
+        setGlobalUser(user);
+        const uid = user.uid;
+        await set(ref(db, `users/${uid}`), { email, scores: [0] });
+        setUserData({ email, scores: [0], uid });
+        setLogin(true);
+        navigate("/");
+      } catch (error) {
+        throw error;
+      }
+    } else {
+      throw new Error("The passwords do not match!");
+    }
+  };
+
+  const handleLogout = (): void => {
+    setGlobalUser(null);
+    setUserData(null);
+    setLogin(false);
+    handleClose();
   };
 
   return (
@@ -39,7 +106,7 @@ const Home = () => {
           aria-expanded={open ? "true" : undefined}
           onClick={handleClick}
         >
-          Login
+          {login ? "Logout" : "Login"}
         </Button>
         <Menu
           id="basic-menu"
@@ -50,35 +117,113 @@ const Home = () => {
             "aria-labelledby": "basic-button",
           }}
         >
-          <MenuItem
-            onClick={() => {
-              handleClose();
-              navigate("/login");
-            }}
-          >
-            Login
-          </MenuItem>
-          <MenuItem
-            onClick={() => {
-              handleClose();
-              navigate("/signup");
-            }}
-          >
-            Signup
-          </MenuItem>
-          <MenuItem onClick={handleClose}>Logout</MenuItem>
+          {login ? (
+            <MenuItem onClick={handleLogout}>Logout</MenuItem>
+          ) : (
+            <Box>
+              <MenuItem
+                onClick={() => {
+                  handleClose();
+                  navigate("/login");
+                }}
+              >
+                Login
+              </MenuItem>
+              <MenuItem
+                onClick={() => {
+                  handleClose();
+                  navigate("/signup");
+                }}
+              >
+                Signup
+              </MenuItem>
+            </Box>
+          )}
         </Menu>
       </span>
 
       <h1 className="mx-auto text-center text-5xl">Quizzical</h1>
       <br />
-      {localStorage.getItem("scores") && (
-        <Typography variant="h3">Top Score: {Math.max(...scores)}/5</Typography>
+      {login && (
+        <>
+          <Typography variant="h3">
+            Top Score: {Math.max(...(userData?.scores ? userData?.scores : 0))}
+            /5
+          </Typography>
+          <Typography variant="h3">
+            Last Score: {userData?.scores[userData.scores.length - 1]}/5
+          </Typography>
+        </>
       )}
       <br />
-      <Button variant="contained" color="success" onClick={handleStart}>
+      <Button
+        variant="contained"
+        color="success"
+        onClick={
+          login
+            ? handleStart
+            : () => {
+                setShow(true);
+              }
+        }
+        sx={{
+          width: "100%",
+        }}
+      >
         Start
       </Button>
+
+      <Dialog
+        open={show}
+        onClose={() => {
+          setShow(false);
+        }}
+      >
+        <BootstrapDialogTitle
+          onClose={() => {
+            setShow(false);
+          }}
+        >
+          Sign Up
+        </BootstrapDialogTitle>
+        <DialogContent>
+          {" "}
+          <form className="grid gap-y-5">
+            <TextField
+              label="Email"
+              onChange={(event) => {
+                setEmail(event.target.value);
+              }}
+              required
+            />
+            <TextField
+              label="Password"
+              type="password"
+              onChange={(event) => {
+                setPassword(event.target.value);
+              }}
+              required
+            />
+            <TextField
+              label="Retype Password"
+              type="password"
+              onChange={(event) => {
+                setConfirmPass(event.target.value);
+              }}
+              required
+            />
+            <Typography variant="body2">
+              Already have an account?{" "}
+              <Link to="/login" component={RouterLink}>
+                Sign In instead
+              </Link>
+            </Typography>
+            <Button onClick={handleSubmit} variant="contained">
+              Sign Up
+            </Button>
+          </form>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };

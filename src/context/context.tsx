@@ -1,12 +1,7 @@
 import { createContext, useContext, useEffect, useState } from "react";
 import { auth, db } from "../firebase";
 
-import {
-  browserLocalPersistence,
-  onAuthStateChanged,
-  setPersistence,
-  User,
-} from "firebase/auth";
+import { browserLocalPersistence, setPersistence, User } from "firebase/auth";
 import { get, child, ref } from "firebase/database";
 const AppContext = createContext<any>("");
 
@@ -15,12 +10,23 @@ interface UserData {
   scores: number[];
   uid: string;
 }
+
+interface Params {
+  noQ: number;
+  category: string;
+  difficulty: string;
+}
+
 const dbRef = ref(db);
 
 export const AppProvider = ({ children }: any) => {
   const [globalUser, setGlobalUser] = useState<User>();
   const [login, setLogin] = useState<boolean>(false);
+  const [configIsOpen, setConfigIsOpen] = useState<boolean>(false);
   const [userData, setUserData] = useState<UserData>();
+  const [url, setUrl] = useState<string>(
+    "https://opentdb.com/api.php?amount=5&type=multiple"
+  );
 
   const fetchUserData = async (uid: string) => {
     const snapshot = await get(child(dbRef, `users/${uid}`));
@@ -58,6 +64,11 @@ export const AppProvider = ({ children }: any) => {
         setLogin,
         userData,
         setUserData,
+
+        configIsOpen,
+        setConfigIsOpen,
+        url,
+        setUrl,
       }}
     >
       {children}

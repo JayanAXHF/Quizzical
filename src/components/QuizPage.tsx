@@ -37,19 +37,11 @@ function shuffle(array: any[]) {
 const dbRef = ref(db);
 
 const QuizPage: React.FC = () => {
-  const { userData, setGlobalUser, setUserData, setLogin, login } =
+  const { userData, setGlobalUser, setUserData, setLogin, login, url } =
     useAppContext();
   const navigate = useNavigate();
 
-  const url: string = "https://opentdb.com/api.php?amount=5&type=multiple";
-
-  const [selectedAnswers, setSelectedAnswers] = useState<SelAns>({
-    0: "",
-    1: "",
-    2: "",
-    3: "",
-    4: "",
-  });
+  const [selectedAnswers, setSelectedAnswers] = useState<SelAns>({});
 
   const [scores, setScores] = useState<number[]>([0]);
   const [loading, setLoading] = useState<boolean>(false);
@@ -95,6 +87,7 @@ const QuizPage: React.FC = () => {
     setLoading(true);
     const res = await fetch(url);
     const data = await res.json();
+    console.log(`JSC ~ file: QuizPage.tsx:106 ~ fetchData ~ data`, data);
     let formattedData = data.results.map((item: Question) => {
       return {
         ...item,
@@ -152,7 +145,7 @@ const QuizPage: React.FC = () => {
   const handleSubmit = async (e: React.SyntheticEvent) => {
     e.preventDefault();
     let results: number = 0;
-    for (let index = 0; index < 5; index++) {
+    for (let index = 0; index < questions.length; index++) {
       const element = selectedAnswers[index];
       if (element === questions[index].correct_answer) {
         results += 1;
@@ -304,11 +297,10 @@ const QuizPage: React.FC = () => {
         <div className="mt-16 grid h-screen w-screen gap-y-4 px-3 md:mt-0 md:place-content-center md:px-0">
           <span className="grid gap-y-4 rounded-lg bg-white p-6 dark:bg-main md:place-content-center">
             <Typography variant="h1">
-              Score: {results}
-              /5
+              Score: {results}/{questions.length}
             </Typography>
             <Typography variant="h1">
-              Top Score: {Math.max(...(scores as number[]))}/5
+              Top Score: {Math.max(...(scores as number[]))}
             </Typography>
             {checkComponent}
             <br />

@@ -1,7 +1,6 @@
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import { useRef, useState } from "react";
 import {
-  browserSessionPersistence,
   createUserWithEmailAndPassword,
   setPersistence,
   browserLocalPersistence,

@@ -18,6 +18,7 @@ import { createUserWithEmailAndPassword } from "firebase/auth";
 import { auth, db } from "../firebase";
 import { ref, set } from "firebase/database";
 import { Close as CloseIcon } from "@mui/icons-material";
+import Config from "./modals/Config";
 
 function BootstrapDialogTitle(props: any) {
   const { children, onClose, ...other } = props;
@@ -48,8 +49,14 @@ const Home = () => {
   const [show, setShow] = useState<boolean>(false);
   const [email, setEmail] = useState<string>("");
   const [password, setPassword] = useState<string>("");
-  const { setGlobalUser, setUserData, setLogin, login, userData } =
-    useAppContext();
+  const {
+    setGlobalUser,
+    setUserData,
+    setLogin,
+    login,
+    userData,
+    setConfigIsOpen,
+  } = useAppContext();
 
   const [confirmPass, setConfirmPass] = useState<string>("");
 
@@ -90,6 +97,7 @@ const Home = () => {
   };
 
   const handleLogout = (): void => {
+    localStorage.clear();
     setGlobalUser(null);
     setUserData(null);
     setLogin(false);
@@ -155,6 +163,19 @@ const Home = () => {
           </Typography>
         </>
       )}
+      <br />
+      <Button
+        variant="outlined"
+        color="info"
+        onClick={() => {
+          setConfigIsOpen(true);
+        }}
+        sx={{
+          width: "100%",
+        }}
+      >
+        Settings
+      </Button>
       <br />
       <Button
         variant="contained"
@@ -224,6 +245,7 @@ const Home = () => {
           </form>
         </DialogContent>
       </Dialog>
+      <Config />
     </div>
   );
 };

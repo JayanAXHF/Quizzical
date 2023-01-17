@@ -1,3 +1,13 @@
 # Getting Started
 
-This app is a app that gives the user a five-question trivia. It impliments user authentication with firebase
+This app is a app that gives the user a n-question trivia. It impliments user authentication with firebase
+
+
+# Pakages Used
+
+The packages used in this projects are:
+1. MUI (along with sister packages)
+2. tailwindcss
+3. firebase
+4. html-entities
+5. @mui/icons-material

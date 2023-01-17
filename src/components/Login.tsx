@@ -55,7 +55,7 @@ const Login: FC = () => {
         );
       if (!keepLogin) {
         localStorage.removeItem(
-          "firebase:authUser:AIzaSyD5Wx1tmwXiUsBDGZ31tB0Hm5E5xABAY1c:[DEFAULT]"
+          `firebase:authUser:${process.env.REACT_APP_API_KEY}:[DEFAULT]`
         );
       }
 

@@ -110,6 +110,11 @@ const Config = () => {
     handleClose();
   };
 
+  const handleReset = () => {
+    setUrl(`https://opentdb.com/api.php?amount=5&type=multiple`);
+    handleClose();
+  };
+
   return (
     <div className="grid  w-full items-center justify-between   !text-black prose-headings:prose prose-li:list-item dark:prose-headings:!text-white lg:prose-headings:prose-xl ">
       <Dialog
@@ -186,7 +191,7 @@ const Config = () => {
         </DialogContent>
         <DialogActions>
           <Button onClick={handleClose}>Cancel</Button>
-          <Button color="error" variant="outlined">
+          <Button color="error" variant="outlined" onClick={handleReset}>
             Reset to default
           </Button>
           <Button onClick={handleSubmit} variant="contained">

@@ -40,7 +40,7 @@ export const AppProvider = ({ children }: any) => {
   useEffect(() => {
     const usr = JSON.parse(
       localStorage.getItem(
-        `firebase:authUser:AIzaSyD5Wx1tmwXiUsBDGZ31tB0Hm5E5xABAY1c:[DEFAULT]`
+        `firebase:authUser:${process.env.REACT_APP_API_KEY}:[DEFAULT]`
       ) as string
     );
 
@@ -49,7 +49,7 @@ export const AppProvider = ({ children }: any) => {
       setGlobalUser(usr);
       fetchUserData(usr.uid);
       localStorage.setItem(
-        `firebase:authUser:AIzaSyD5Wx1tmwXiUsBDGZ31tB0Hm5E5xABAY1c:[DEFAULT]`,
+        `firebase:authUser:${process.env.REACT_APP_API_KEY}:[DEFAULT]`,
         JSON.stringify(usr)
       );
     }

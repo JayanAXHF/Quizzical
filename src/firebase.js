@@ -8,7 +8,7 @@ import { getDatabase } from "firebase/database";
 // Your web app's Firebase configuration
 // For Firebase JS SDK v7.20.0 and later, measurementId is optional
 const firebaseConfig = {
-  apiKey: "AIzaSyD5Wx1tmwXiUsBDGZ31tB0Hm5E5xABAY1c",
+  apiKey: process.env.REACT_APP_API_KEY,
   authDomain: "quizzical-561.firebaseapp.com",
   databaseURL:
     "https://quizzical-561-default-rtdb.asia-southeast1.firebasedatabase.app",

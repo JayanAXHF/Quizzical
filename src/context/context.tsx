@@ -11,12 +11,6 @@ interface UserData {
   uid: string;
 }
 
-interface Params {
-  noQ: number;
-  category: string;
-  difficulty: string;
-}
-
 const dbRef = ref(db);
 
 export const AppProvider = ({ children }: any) => {

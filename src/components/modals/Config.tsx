@@ -6,8 +6,8 @@ import DialogContent from "@mui/material/DialogContent";
 import DialogContentText from "@mui/material/DialogContentText";
 import DialogTitle from "@mui/material/DialogTitle";
 import { useAppContext } from "../../context/context";
-import React, { ReactNode, SyntheticEvent, useEffect, useState } from "react";
-import { Box, FormControl, InputLabel, MenuItem, Select } from "@mui/material";
+import { useEffect, useState } from "react";
+import { FormControl, InputLabel, MenuItem, Select } from "@mui/material";
 
 interface Category {
   id: number;

@@ -1,6 +1,6 @@
 # Getting Started
 
-This app is a app that gives the user a n-question trivia. It impliments user authentication with firebase
+This app is a app that gives the user a n-question trivia. It impliments user authentication with firebase.
 
 
 # Pakages Used

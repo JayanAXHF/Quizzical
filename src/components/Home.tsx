@@ -2,10 +2,13 @@ import {
   Box,
   Button,
   Dialog,
+  DialogActions,
   DialogContent,
   DialogTitle,
   IconButton,
   Link,
+  List,
+  ListItem,
   Menu,
   MenuItem,
   TextField,
@@ -56,6 +59,7 @@ const Home = () => {
     login,
     userData,
     setConfigIsOpen,
+    setShowScores,
   } = useAppContext();
 
   const [confirmPass, setConfirmPass] = useState<string>("");
@@ -177,7 +181,15 @@ const Home = () => {
         >
           Settings
         </Button>
-        <Button variant={"text"} color="secondary">
+        <Button
+          variant={"text"}
+          color="warning"
+          onClick={() => {
+            if (login) {
+              setShowScores(true);
+            }
+          }}
+        >
           View Scores
         </Button>
       </div>
@@ -251,8 +263,43 @@ const Home = () => {
         </DialogContent>
       </Dialog>
       <Config />
+      <ScoresModal scores={userData?.scores ?? []} />
     </div>
   );
 };
 
 export default Home;
+
+interface ScoresModelProps {
+  scores: number[];
+}
+
+const ScoresModal = ({ scores }: ScoresModelProps) => {
+  const { showScores, setShowScores } = useAppContext();
+  return (
+    <Dialog
+      open={showScores}
+      onClose={() => {
+        setShowScores(false);
+      }}
+    >
+      <DialogContent>
+        <ul className="grid grid-flow-row grid-cols-1">
+          {scores.map((score) => {
+            return <li className="list-item">{score}</li>;
+          })}
+        </ul>
+      </DialogContent>
+      <DialogActions>
+        <Button
+          onClick={() => {
+            setShowScores(false);
+          }}
+          className="grid-flow-col"
+        >
+          Close
+        </Button>
+      </DialogActions>
+    </Dialog>
+  );
+};

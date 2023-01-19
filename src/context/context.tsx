@@ -21,6 +21,7 @@ export const AppProvider = ({ children }: any) => {
   const [url, setUrl] = useState<string>(
     "https://opentdb.com/api.php?amount=5&type=multiple"
   );
+  const [showScores, setShowScores] = useState<boolean>(false);
 
   const fetchUserData = async (uid: string) => {
     const snapshot = await get(child(dbRef, `users/${uid}`));
@@ -63,6 +64,8 @@ export const AppProvider = ({ children }: any) => {
         setConfigIsOpen,
         url,
         setUrl,
+        showScores,
+        setShowScores,
       }}
     >
       {children}

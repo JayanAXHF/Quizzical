@@ -187,6 +187,8 @@ const Home = () => {
           onClick={() => {
             if (login) {
               setShowScores(true);
+            } else {
+              setShow(true);
             }
           }}
         >

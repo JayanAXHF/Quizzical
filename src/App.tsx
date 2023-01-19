@@ -21,19 +21,21 @@ function App() {
     [prefersDarkMode]
   );
   return (
-    <AppProvider>
-      <ThemeProvider theme={theme}>
-        <CssBaseline />
-        <BrowserRouter>
-          <Routes>
-            <Route path="/" element={<Home />} />
-            <Route path="/quiz" element={<QuizPage />} />
-            <Route path="/signup" element={<Signup />} />
-            <Route path="/login" element={<Login />} />
-          </Routes>
-        </BrowserRouter>
-      </ThemeProvider>
-    </AppProvider>
+    <div className="prose lg:prose-xl">
+      <AppProvider>
+        <ThemeProvider theme={theme}>
+          <CssBaseline />
+          <BrowserRouter>
+            <Routes>
+              <Route path="/" element={<Home />} />
+              <Route path="/quiz" element={<QuizPage />} />
+              <Route path="/signup" element={<Signup />} />
+              <Route path="/login" element={<Login />} />
+            </Routes>
+          </BrowserRouter>
+        </ThemeProvider>
+      </AppProvider>
+    </div>
   );
 }
 

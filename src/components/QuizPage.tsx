@@ -249,14 +249,15 @@ const QuizPage: React.FC = () => {
   });
 
   return (
-    <div className="grid grid-flow-row">
+    <div className="grid grid-flow-row static">
       <Button
         sx={{
           position: "absolute",
           top: 2 * 5,
           left: 2 * 5,
         }}
-        variant="outlined"
+        variant="text"
+        color='inherit'        
         onClick={() => {
           navigate("/");
         }}
@@ -272,7 +273,7 @@ const QuizPage: React.FC = () => {
             <span className="grid gap-y-4 rounded-lg bg-white p-6 dark:bg-main md:place-content-center">
               {login && (
                 <Typography variant="h1">
-                  Top Score: {Math.max(...(userData?.scores || [0]))}/5
+                  Top Score: {Math.max(...(userData?.scores || [0]))}
                 </Typography>
               )}
 

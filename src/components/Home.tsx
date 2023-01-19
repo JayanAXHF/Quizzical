@@ -164,18 +164,21 @@ const Home = () => {
         </>
       )}
       <br />
-      <Button
-        variant="outlined"
-        color="info"
-        onClick={() => {
-          setConfigIsOpen(true);
-        }}
-        sx={{
-          width: "100%",
-        }}
-      >
-        Settings
-      </Button>
+      <div className="grid grid-flow-col">
+        <Button
+          variant="outlined"
+          color="info"
+          onClick={() => {
+            setConfigIsOpen(true);
+          }}
+          sx={{
+            width: "100%",
+          }}
+        >
+          Settings
+        </Button>
+        <Button variant={'text'} color='secondary' >Veiw Scores</Button>
+      </div>
       <br />
       <Button
         variant="contained"

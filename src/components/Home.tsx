@@ -164,7 +164,7 @@ const Home = () => {
         </>
       )}
       <br />
-      <div className="grid grid-flow-col">
+      <div className="grid grid-flow-col gap-x-3">
         <Button
           variant="outlined"
           color="info"
@@ -177,7 +177,9 @@ const Home = () => {
         >
           Settings
         </Button>
-        <Button variant={'text'} color='secondary' >Veiw Scores</Button>
+        <Button variant={"text"} color="secondary">
+          View Scores
+        </Button>
       </div>
       <br />
       <Button

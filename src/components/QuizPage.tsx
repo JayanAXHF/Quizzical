@@ -63,6 +63,7 @@ const QuizPage: React.FC = () => {
     }
     fetchData();
     setLoading(false);
+    // eslint-disable-next-line
   }, []);
 
   const fetchUserData = async (uid: string) => {
@@ -102,7 +103,7 @@ const QuizPage: React.FC = () => {
     const index: number = i;
 
     return (
-      <div key={i} className="grid gap-y-1">
+      <div key={i} className="relative grid gap-y-1">
         <span>
           Q{i + 1}. {decode(question?.question)}
         </span>
@@ -249,15 +250,16 @@ const QuizPage: React.FC = () => {
   });
 
   return (
-    <div className="grid grid-flow-row static">
+    <div className="static my-20 h-screen w-screen place-content-center sm:my-0 xl:my-0 xl:grid">
       <Button
         sx={{
           position: "absolute",
           top: 2 * 5,
+
           left: 2 * 5,
         }}
         variant="text"
-        color='inherit'        
+        color="inherit"
         onClick={() => {
           navigate("/");
         }}
@@ -269,8 +271,8 @@ const QuizPage: React.FC = () => {
         loading ? (
           <CircularProgress />
         ) : (
-          <form className="mt-16 grid h-screen w-screen gap-y-4 px-3 md:mt-0 md:place-content-center md:px-0">
-            <span className="grid gap-y-4 rounded-lg bg-white p-6 dark:bg-main md:place-content-center">
+          <form className="grid  h-auto w-screen gap-y-4 px-3 md:mt-0 md:place-content-center md:px-0">
+            <span className="static  grid h-auto  gap-y-4 rounded-lg bg-white p-6 dark:bg-main md:place-content-center lg:mt-0">
               {login && (
                 <Typography variant="h1">
                   Top Score: {Math.max(...(userData?.scores || [0]))}
@@ -290,8 +292,8 @@ const QuizPage: React.FC = () => {
           </form>
         )
       ) : (
-        <div className="mt-16 grid h-screen w-screen gap-y-4 px-3 md:mt-0 md:place-content-center md:px-0">
-          <span className="grid gap-y-4 rounded-lg bg-white p-6 dark:bg-main md:place-content-center">
+        <div className="grid h-auto w-screen gap-y-4 px-3 md:mt-0 md:place-content-center md:px-0">
+          <span className="static mt-96 grid h-max gap-y-4 rounded-lg bg-white p-6 dark:bg-main md:place-content-center lg:mt-0  ">
             <Typography variant="h1">
               Score: {results}/{questions.length}
             </Typography>

@@ -21,14 +21,22 @@ function App() {
     [prefersDarkMode]
   );
   return (
-    <div className="prose lg:prose-xl">
+    <div className="grid place-content-center">
       <AppProvider>
         <ThemeProvider theme={theme}>
           <CssBaseline />
           <BrowserRouter>
             <Routes>
               <Route path="/" element={<Home />} />
-              <Route path="/quiz" element={<QuizPage />} />
+              <Route
+                path="/quiz"
+                element={
+                  <div>
+                    {" "}
+                    <QuizPage />
+                  </div>
+                }
+              />
               <Route path="/signup" element={<Signup />} />
               <Route path="/login" element={<Login />} />
             </Routes>

@@ -293,7 +293,7 @@ const QuizPage: React.FC = () => {
         )
       ) : (
         <div className="grid h-auto w-screen gap-y-4 px-3 md:mt-0 md:place-content-center md:px-0">
-          <span className="static mt-96 grid h-max gap-y-4 rounded-lg bg-white p-6 dark:bg-main md:place-content-center lg:mt-0  ">
+          <span className="static  grid h-max gap-y-4 rounded-lg bg-white p-6 dark:bg-main md:place-content-center lg:mt-0  ">
             <Typography variant="h1">
               Score: {results}/{questions.length}
             </Typography>

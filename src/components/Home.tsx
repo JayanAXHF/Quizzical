@@ -160,10 +160,9 @@ const Home = () => {
         <>
           <Typography variant="h3">
             Top Score: {Math.max(...(userData?.scores ? userData?.scores : 0))}
-            /5
           </Typography>
           <Typography variant="h3">
-            Last Score: {userData?.scores[userData.scores.length - 1]}/5
+            Last Score: {userData?.scores[userData.scores.length - 1]}
           </Typography>
         </>
       )}

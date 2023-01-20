@@ -7,8 +7,6 @@ import {
   DialogTitle,
   IconButton,
   Link,
-  List,
-  ListItem,
   Menu,
   MenuItem,
   TextField,
@@ -155,7 +153,7 @@ const Home = () => {
       </span>
 
       <h1 className="mx-auto text-center text-5xl">Quizzical</h1>
-      <br />
+
       {login && (
         <>
           <Typography variant="h3">
@@ -229,9 +227,9 @@ const Home = () => {
         >
           Sign Up
         </BootstrapDialogTitle>
-        <DialogContent>
+        <DialogContent className="grid grid-flow-row grid-cols-1">
           {" "}
-          <form className="grid gap-y-5">
+          <form className="grid grid-flow-row gap-y-5">
             <TextField
               label="Email"
               onChange={(event) => {
@@ -287,9 +285,10 @@ const ScoresModal = ({ scores }: ScoresModelProps) => {
       onClose={() => {
         setShowScores(false);
       }}
+      scroll="body"
     >
       <DialogContent>
-        <ul className="grid grid-flow-row grid-cols-1">
+        <ul className="grid list-none grid-flow-row grid-cols-1">
           {scores.map((score) => {
             return <li className="list-item">{score}</li>;
           })}

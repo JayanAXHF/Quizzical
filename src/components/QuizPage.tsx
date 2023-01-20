@@ -103,7 +103,7 @@ const QuizPage: React.FC = () => {
     const index: number = i;
 
     return (
-      <div key={i} className="relative grid gap-y-1">
+      <div key={i} className=" grid gap-y-1">
         <span>
           Q{i + 1}. {decode(question?.question)}
         </span>
@@ -133,7 +133,6 @@ const QuizPage: React.FC = () => {
         </div>
 
         <Divider />
-        <br />
       </div>
     );
   });
@@ -250,7 +249,11 @@ const QuizPage: React.FC = () => {
   });
 
   return (
-    <div className="static my-20 h-screen w-screen place-content-center sm:my-0 xl:my-0 xl:grid">
+    <div
+      className={` m-auto my-20 h-screen w-screen  justify-center sm:my-0 xl:my-0 xl:grid ${
+        questions.length <= 10 && " content-center "
+      }`}
+    >
       <Button
         sx={{
           position: "absolute",
@@ -271,29 +274,33 @@ const QuizPage: React.FC = () => {
         loading ? (
           <CircularProgress />
         ) : (
-          <form className="grid  h-auto w-screen gap-y-4 px-3 md:mt-0 md:place-content-center md:px-0">
-            <span className="static  grid h-auto  gap-y-4 rounded-lg bg-white p-6 dark:bg-main md:place-content-center lg:mt-0">
-              {login && (
-                <Typography variant="h1">
-                  Top Score: {Math.max(...(userData?.scores || [0]))}
-                </Typography>
-              )}
-
-              {questionComponent}
-              <Button
-                type="submit"
-                sx={{ width: "max-content" }}
-                variant="contained"
-                onClick={handleSubmit}
-              >
-                Check Answers
-              </Button>
-            </span>
+          <form>
+            <div className="grid w-screen  gap-y-4 px-3 md:mt-0 md:px-0">
+              <span className="  grid  gap-y-4 rounded-lg bg-white p-6 dark:bg-main  lg:mt-0 ">
+                {login && (
+                  <Typography
+                    variant="h1"
+                    className="text-black dark:text-white"
+                  >
+                    Top Score: {Math.max(...(userData?.scores || [0]))}
+                  </Typography>
+                )}
+                {questionComponent}
+                <Button
+                  type="submit"
+                  sx={{ width: "max-content" }}
+                  variant="contained"
+                  onClick={handleSubmit}
+                >
+                  Check Answers
+                </Button>
+              </span>
+            </div>
           </form>
         )
       ) : (
-        <div className="grid h-auto w-screen gap-y-4 px-3 md:mt-0 md:place-content-center md:px-0">
-          <span className="static  grid h-max gap-y-4 rounded-lg bg-white p-6 dark:bg-main md:place-content-center lg:mt-0  ">
+        <div className="grid  w-screen gap-y-4 px-3 md:mt-0 md:place-content-center md:px-0">
+          <span className="static  grid  gap-y-4 rounded-lg bg-white p-6 dark:bg-main md:place-content-center lg:mt-0  ">
             <Typography variant="h1">
               Score: {results}/{questions.length}
             </Typography>

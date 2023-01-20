@@ -173,7 +173,11 @@ const Home = () => {
           variant="outlined"
           color="info"
           onClick={() => {
-            setConfigIsOpen(true);
+            if (login) {
+              setConfigIsOpen(true);
+            } else {
+              setShow(true);
+            }
           }}
           sx={{
             width: "100%",

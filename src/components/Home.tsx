@@ -152,7 +152,7 @@ const Home = () => {
         </Menu>
       </span>
 
-      <h1 className="mx-auto text-center text-5xl">Quizzical</h1>
+      <h1 className="mx-auto text-center text-5xl">Trivial trivia</h1>
 
       {login && (
         <>

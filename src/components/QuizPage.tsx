@@ -1,4 +1,4 @@
-import { Button, CircularProgress, Divider, Typography } from "@mui/material";
+import { Button, Divider, LinearProgress, Typography } from "@mui/material";
 import React, { useEffect, useState } from "react";
 import { decode } from "html-entities";
 import { red } from "@mui/material/colors";
@@ -271,11 +271,16 @@ const QuizPage: React.FC = () => {
       </Button>
 
       {!completed ? (
-        loading ? (
-          <CircularProgress />
+        loading || !questions ? (
+          <LinearProgress
+            sx={{
+              position: "absolute",
+              top: 0,
+            }}
+          />
         ) : (
           <form>
-            <div className="grid w-screen  gap-y-4 px-3 md:mt-0 md:px-0">
+            <div className="grid  w-screen gap-y-4 px-3 md:mt-0 md:place-content-center md:px-0">
               <span className="  grid  gap-y-4 rounded-lg bg-white p-6 dark:bg-main  lg:mt-0 ">
                 {login && (
                   <Typography
@@ -315,6 +320,8 @@ const QuizPage: React.FC = () => {
                 width: "max-content",
               }}
               onClick={() => {
+                setSelectedAnswers({});
+                setQuestions([]);
                 setLoading(true);
                 setCompleted(false);
                 fetchData();

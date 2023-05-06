@@ -32,7 +32,17 @@ const Login: FC = () => {
     event.preventDefault();
 
     try {
-      keepLogin && setPersistence(auth, browserLocalPersistence);
+      keepLogin &&
+        setPersistence(auth, browserLocalPersistence)
+          .then(() => {
+            return signInWithEmailAndPassword(auth, email, password);
+          })
+          .catch((error) => {
+            // Handle Errors here.
+            const errorCode = error.code;
+            const errorMessage = error.message;
+            alert(`Error ${errorCode} ${errorMessage} `);
+          });
       const userCredentials = await signInWithEmailAndPassword(
         auth,
         email,
@@ -46,17 +56,6 @@ const Login: FC = () => {
         setUserData({ ...snapshot.val(), uid });
       } else {
         throw new Error("No data available");
-      }
-
-      keepLogin &&
-        localStorage.setItem(
-          "user",
-          JSON.stringify({ ...snapshot.val(), uid })
-        );
-      if (!keepLogin) {
-        localStorage.removeItem(
-          `firebase:authUser:${process.env.REACT_APP_API_KEY}:[DEFAULT]`
-        );
       }
 
       setLogin(true);

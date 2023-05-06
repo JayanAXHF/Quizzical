@@ -1,5 +1,5 @@
 import React from "react";
-
+import { Analytics } from "@vercel/analytics/react";
 import { CssBaseline, useMediaQuery } from "@mui/material";
 import {
   createTheme,
@@ -65,6 +65,7 @@ function App() {
             </BrowserRouter>
           </ThemeProvider>
         </AppProvider>
+        <Analytics />
       </div>
     </StyledEngineProvider>
   );

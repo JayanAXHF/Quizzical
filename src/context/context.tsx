@@ -1,7 +1,7 @@
-import { createContext, useContext, useEffect, useState } from "react";
-import { auth, db } from "../firebase";
+import { createContext, useContext, useState } from "react";
+import { db } from "../firebase";
 
-import { browserLocalPersistence, setPersistence, User } from "firebase/auth";
+import { User } from "firebase/auth";
 import { get, child, ref } from "firebase/database";
 const AppContext = createContext<any>("");
 
@@ -22,33 +22,6 @@ export const AppProvider = ({ children }: any) => {
     "https://opentdb.com/api.php?amount=5&type=multiple"
   );
   const [showScores, setShowScores] = useState<boolean>(false);
-
-  const fetchUserData = async (uid: string) => {
-    const snapshot = await get(child(dbRef, `users/${uid}`));
-    if (snapshot.exists()) {
-      setUserData({ ...snapshot.val(), uid });
-      setLogin(true);
-    } else {
-    }
-  };
-
-  useEffect(() => {
-    const usr = JSON.parse(
-      localStorage.getItem(
-        `firebase:authUser:${process.env.REACT_APP_API_KEY}:[DEFAULT]`
-      ) as string
-    );
-
-    if (usr) {
-      setPersistence(auth, browserLocalPersistence);
-      setGlobalUser(usr);
-      fetchUserData(usr.uid);
-      localStorage.setItem(
-        `firebase:authUser:${process.env.REACT_APP_API_KEY}:[DEFAULT]`,
-        JSON.stringify(usr)
-      );
-    }
-  }, []);
 
   return (
     <AppContext.Provider

@@ -40,6 +40,7 @@ function App() {
     //eslint-disable-next-line
     [prefersDarkMode]
   );
+
   return (
     <StyledEngineProvider injectFirst>
       <div className="grid place-content-center">

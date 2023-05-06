@@ -109,38 +109,6 @@ const Home = () => {
   return (
     <div className="grid h-screen w-screen grid-flow-row  place-content-center place-items-center  ">
       <span className="fixed top-5 right-5 grid grid-flow-col">
-        {/* <Menu
-          id="basic-menu"
-          anchorEl={anchorEl}
-          open={open}
-          onClose={handleClose}
-          MenuListProps={{
-            "aria-labelledby": "basic-button",
-          }}
-        >
-          {login ? (
-            <MenuItem onClick={handleLogout}>Logout</MenuItem>
-          ) : (
-            <Box>
-              <MenuItem
-                onClick={() => {
-                  handleClose();
-                  navigate("/login");
-                }}
-              >
-                Login
-              </MenuItem>
-              <MenuItem
-                onClick={() => {
-                  handleClose();
-                  navigate("/signup");
-                }}
-              >
-                Signup
-              </MenuItem>
-            </Box>
-          )}
-        </Menu> */}
         {login ? (
           <Button variant="text" color="info" onClick={handleLogout}>
             Logout
@@ -169,7 +137,9 @@ const Home = () => {
         )}
       </span>
 
-      <h1 className="mx-auto text-center text-5xl">Trivial trivia</h1>
+      <Typography variant="h1" className="mx-auto  mb-5 text-center">
+        Trivial Trivia
+      </Typography>
 
       {login && (
         <>

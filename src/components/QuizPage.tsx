@@ -250,7 +250,7 @@ const QuizPage: React.FC = () => {
 
   return (
     <div
-      className={` m-auto my-20 h-screen w-screen  justify-center sm:my-0 xl:my-0 xl:grid ${
+      className={` m-auto my-20 h-screen w-screen justify-center  overflow-x-hidden sm:my-0 xl:my-0 xl:grid ${
         questions.length <= 10 && " content-center "
       }`}
     >

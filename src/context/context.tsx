@@ -2,7 +2,7 @@ import { createContext, useContext, useState } from "react";
 import { db } from "../firebase";
 
 import { User } from "firebase/auth";
-import { get, child, ref } from "firebase/database";
+import { ref } from "firebase/database";
 const AppContext = createContext<any>("");
 
 interface UserData {

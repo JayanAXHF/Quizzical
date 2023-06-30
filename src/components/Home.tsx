@@ -137,10 +137,10 @@ const Home = () => {
         )}
       </span>
 
-<div className='rounded-2xl bg-white dark:bg-black dark:text-white px-5 mx-auto'>
+<a href='github.com/JayanAXHF/quizzical' className='rounded-2xl bg-white dark:bg-black dark:text-white px-5 mx-auto'>
 
   Trivial Trivia is open-source!
-</div>
+</a>
       <Typography variant="h1" className="mx-auto  mb-5 text-center">
         Trivial Trivia
       </Typography>
